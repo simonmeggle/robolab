@@ -102,6 +102,20 @@ services:
       MYSQL_PASSWORD: ${OXID_MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${OXID_MYSQL_ROOT_PASSWORD}
 
+  oxid6_mailhog:
+    hostname: mailhog.${DOMAIN}
+    image: mailhog/mailhog:latest
+    networks: 
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mailhog.service=mailhog"
+      - "traefik.http.routers.mailhog.rule=Host(`${TRAEFIK_MAILHOG_DOMAIN}`)"
+      - "traefik.http.routers.mailhog.entrypoints=websecure"
+      - "traefik.http.routers.mailhog.tls.certresolver=myresolver"    
+      - "traefik.http.services.mailhog.loadbalancer.server.port=8025"
+    
+
 
 # create with: docker network create web
 networks:
