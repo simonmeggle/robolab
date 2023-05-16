@@ -62,41 +62,45 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./portainer_data:/data"
 
-  # oxid6_apache:
-  #   build: container/apache/.
-  #   hostname: ${DOMAIN}
-  #   restart: always
-  #   depends_on:
-  #     - oxid6_mysql
-  #   volumes:
-  #     - ./data/www/:/var/www/html/:cached
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.oxid.service=oxid"
-  #     - "traefik.http.routers.oxid.rule=Host(`${TRAEFIK_OXID_DOMAIN}`)"
-  #     - "traefik.http.routers.oxid.entrypoints=websecure"
-  #     - "traefik.http.services.oxid.loadbalancer.server.port=80"
-  #     - "traefik.http.routers.oxid.tls.certresolver=myresolver"          
-  #   environment:
-  #     DOMAIN: ${DOMAIN}
-  #     APACHE_PORT: ${APACHE_PORT}
-  #     OXID_VERSION: ${OXID_VERSION}
-  #     OXID_DEMODATA: ${OXID_DEMODATA}
-  #     MYSQL_DATABASE: ${MYSQL_DATABASE}
-  #     MYSQL_USER: ${MYSQL_USER}
-  #     MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+  oxid6_apache:
+    build: container/apache/.
+    hostname: ${DOMAIN}
+    restart: always
+    depends_on:
+      - oxid6_mysql
+    volumes:
+      - ./data/www/:/var/www/html/:cached
+    networks: 
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.oxid.service=oxid"
+      - "traefik.http.routers.oxid.rule=Host(`${TRAEFIK_OXID_DOMAIN}`)"
+      - "traefik.http.routers.oxid.entrypoints=web"
+      # - "traefik.http.routers.oxid.tls.certresolver=myresolver"          
+      - "traefik.http.services.oxid.loadbalancer.server.port=80"
+    environment:
+      DOMAIN: ${TRAEFIK_OXID_DOMAIN}
+      APACHE_PORT: ${APACHE_PORT}
+      OXID_VERSION: ${OXID_VERSION}
+      OXID_DEMODATA: ${OXID_DEMODATA}
+      MYSQL_DATABASE: ${OXID_MYSQL_DATABASE}
+      MYSQL_USER: ${OXID_MYSQL_USER}
+      MYSQL_PASSWORD: ${OXID_MYSQL_PASSWORD}
       
-  # oxid6_mysql:
-  #   image: mysql:5.7
-  #   hostname: mysql.${DOMAIN}
-  #   restart: always
-  #   volumes:
-  #     - ./data/mysql/:/var/lib/mysql
-  #   environment:
-  #     MYSQL_DATABASE: ${MYSQL_DATABASE}
-  #     MYSQL_USER: ${MYSQL_USER}
-  #     MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-  #     MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+  oxid6_mysql:
+    image: mysql:5.7
+    hostname: mysql.${TRAEFIK_OXID_DOMAIN}
+    restart: always
+    volumes:
+      - ./data/mysql/:/var/lib/mysql
+    networks: 
+      - web
+    environment:
+      MYSQL_DATABASE: ${OXID_MYSQL_DATABASE}
+      MYSQL_USER: ${OXID_MYSQL_USER}
+      MYSQL_PASSWORD: ${OXID_MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${OXID_MYSQL_ROOT_PASSWORD}
 
 
 # create with: docker network create web
