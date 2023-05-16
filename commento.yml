@@ -1,0 +1,109 @@
+version: "3.3"
+
+services:
+  traefik:
+    image: "traefik:latest"
+    container_name: "traefik"
+    command:
+      - "--log.level=DEBUG"
+      - "--log.filePath=logs/debug.log"
+        #- "--log.level=ERROR"
+      - "--log.filePath=logs/error.log"
+      #- "--log.level=WARN"
+      #- "--log.filePath=logs/warn.log"
+      # Letsencrypt TLS·
+      # https://docs.traefik.io/user-guides/docker-compose/acme-http/
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=mail@robotmk.org"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"                                                                                                                                                                                                                                                                                                                    
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./logs/traefik/:/logs"
+    networks:·
+      - web
+    restart: unless-stopped
+
+  # commento:
+  #   image: caroga/commentoplusplus #Commento++ please see https://github.com/souramoo/commentoplusplus bzw. https://hub.docker.com/r/caroga/commentoplusplus
+  #   environment:
+  #     # Be sure to NOT define any ports because only then Traefik will take care of that.·
+  #     COMMENTO_ORIGIN: https://commento.robotmk.org
+  #     COMMENTO_POSTGRES: postgres://postgres:YOUR_OWN_POSTGRES_PASSWORD@db:5432/commento?sslmode=disable
+  #     # SMTP settings
+  #     COMMENTO_SMTP_HOST: YOUR_SMTP_HOST
+  #     COMMENTO_SMTP_PORT: 587
+  #     COMMENTO_SMTP_USERNAME: YOUR_SMTP_USERNAME
+  #     COMMENTO_SMTP_PASSWORD: YOUR_SMTP_PASSWORD
+  #     COMMENTO_SMTP_FROM_ADDRESS: YOUR_EMAIL_ADDRESS
+  #     # OAuth
+  #     # COMMENTO_TWITTER_KEY: TWITTER_KEY
+  #     # COMMENTO_TWITTER_SECRET: TWITTER_SECRET
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.commento.rule=Host(`commento.robotmk.org`)"
+  #     - "traefik.http.routers.commento.entrypoints=websecure"
+  #     - "traefik.http.routers.commento.tls.certresolver=myresolver"
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - web
+  #   restart: unless-stopped
+
+    db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: commento
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: YOUR_OWN_POSTGRES_PASSWORD
+    networks:
+      - web
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+# only for debugging
+#  whoami:
+#    image: "containous/whoami"
+#    container_name: "simple-service"
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.whoami.rule=Host(`commento.robotmk.org`)"
+#      - "traefik.http.routers.whoami.entrypoints=websecure"
+#      - "traefik.http.routers.whoami.tls.certresolver=myresolver"
+#    networks:
+#      - web
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    command: -H unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.robotmk.org`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.routers.portainer.service=portainer"
+      - "traefik.http.routers.portainer.tls.certresolver=myresolver"
+    restart: unless-stopped
+
+volumes:
+  postgres_data_volume:
+  portainer_data:
+
+networks:
+  web:
+    external: true  
