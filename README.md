@@ -23,9 +23,11 @@ Create DNS records and point to IP:
 
 https://doc.traefik.io/traefik/middlewares/http/basicauth/
 
-    apt install apache2-utils
-    echo $(htpasswd -nb traefikrmk XctA4J9iXctA4J9iXctA4J9i122) | sed -e s/\\$/\\$\\$/g
 
+    apt install apache2-utils
+    # When used in docker-compose.yml all dollar signs in the hash need to be doubled for escaping.
+    echo $(htpasswd -nb traefikrmk xxxxxx) | sed -e s/\\$/\\$\\$/g
+    xxxxxxx  # Insert into .env file, $TRAEFIK_AUTH
 
 
 
@@ -33,3 +35,14 @@ https://doc.traefik.io/traefik/middlewares/http/basicauth/
 
 - Traefik
 - 
+
+## no Demodata
+
+oxid.robotmk.org/setup
+
+/data/www$ sudo chmod -R a+w var/
+
+DB name: mysql.oxid.robotmk.org
+DB name: robotoxid (egal) 
+DB user: root 
+DB pw: $OXID_MYSQL_ROOT_PASSWORD
