@@ -1,30 +1,65 @@
-version: '3'
+version: "3"
 
 services:
-  whoami:
-    image: traefik/whoami
+  traefik:
+    image: "traefik:latest"
+    container_name: "traefik"
+    command:
+      - "--log.level=DEBUG"
+      - "--log.filePath=logs/debug.log"
+        #- "--log.level=ERROR"
+      - "--log.filePath=logs/error.log"
+      #- "--log.level=WARN"
+      #- "--log.filePath=logs/warn.log"
+      # Letsencrypt TLS·
+      # https://docs.traefik.io/user-guides/docker-compose/acme-http/
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=mail@robotmk.org"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
-      - "80:80"
+      - "80:80"                                                                                                                                                                                                                                                                                                                    
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./logs/traefik/:/logs"
+    networks:
+      - web
     restart: unless-stopped
 
-  # portainer: 
-  #   container_name: portainer
-  #   image: portainer/portainer-ce
-  #   hostname: portainer
-  #   restart: always
-  #   # networks: 
-  #   #   internal:
-  #   #     ipv4_address: 172.18.0.3
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.portainer.rule=Host(`portainer.robotmk.org`)"
-  #     - "traefik.http.routers.portainer.entrypoints=websecure"
-  #     - "traefik.http.services.portainer.loadbalancer.server.port=9000"
-  #     - "traefik.http.routers.portainer.service=portainer"
-  #     - "traefik.http.routers.portainer.tls.certresolver=myresolver"    
-  #   volumes:
-  #     - "/var/run/docker.sock:/var/run/docker.sock"
-  #     - "./portainer_data:/data"
+  portainer: 
+    container_name: portainer
+    image: portainer/portainer-ce
+    hostname: portainer
+    restart: always
+    networks: 
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.robotmk.org`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.routers.portainer.service=portainer"
+      - "traefik.http.routers.portainer.tls.certresolver=myresolver"    
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./portainer_data:/data"
+
+# create with: docker network create web
+networks:
+  web:
+    external: true
+      
+
+
 #WORKS
   # oxid6_apache:
   #   build: container/apache/.
