@@ -1,66 +1,66 @@
 version: "3"
 
 services:
-  traefik:
-    image: "traefik:latest"
-    container_name: "traefik"
-    command:
-      - "--log.level=DEBUG"
-      - "--log.filePath=logs/debug.log"
-        #- "--log.level=ERROR"
-      - "--log.filePath=logs/error.log"
-      #- "--log.level=WARN"
-      #- "--log.filePath=logs/warn.log"
-      # Letsencrypt TLS·
-      # https://docs.traefik.io/user-guides/docker-compose/acme-http/
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
-      #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
-      - "--certificatesresolvers.myresolver.acme.email=${TRAEFIK_ACME_EMAIL}"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DOMAIN}`)"
-      - "traefik.http.routers.dashboard.entrypoints=websecure"
-      - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
-      - "traefik.http.routers.dashboard.middlewares=dashboard-auth"
-      - "traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_AUTH}"
-      - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
-    ports:
-      - "80:80"                                                                                                                                                                                                                                                                                                                    
-      - "443:443"
-      # - "8080:8080"
-    volumes:
-      - "./letsencrypt:/letsencrypt"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./logs/traefik/:/logs"
-    networks:
-      - web
-    restart: unless-stopped
+  # traefik:
+  #   image: "traefik:latest"
+  #   container_name: "traefik"
+  #   command:
+  #     - "--log.level=DEBUG"
+  #     - "--log.filePath=logs/debug.log"
+  #       #- "--log.level=ERROR"
+  #     - "--log.filePath=logs/error.log"
+  #     #- "--log.level=WARN"
+  #     #- "--log.filePath=logs/warn.log"
+  #     # Letsencrypt TLS·
+  #     # https://docs.traefik.io/user-guides/docker-compose/acme-http/
+  #     - "--api.insecure=true"
+  #     - "--providers.docker=true"
+  #     - "--providers.docker.exposedbydefault=false"
+  #     - "--entrypoints.web.address=:80"
+  #     - "--entrypoints.websecure.address=:443"
+  #     - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+  #     - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+  #     #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+  #     - "--certificatesresolvers.myresolver.acme.email=${TRAEFIK_ACME_EMAIL}"
+  #     - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.dashboard.service=api@internal"
+  #     - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DOMAIN}`)"
+  #     - "traefik.http.routers.dashboard.entrypoints=websecure"
+  #     - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
+  #     - "traefik.http.routers.dashboard.middlewares=dashboard-auth"
+  #     - "traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_AUTH}"
+  #     - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
+  #   ports:
+  #     - "80:80"                                                                                                                                                                                                                                                                                                                    
+  #     - "443:443"
+  #     # - "8080:8080"
+  #   volumes:
+  #     - "./letsencrypt:/letsencrypt"
+  #     - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  #     - "./logs/traefik/:/logs"
+  #   networks:
+  #     - web
+  #   restart: unless-stopped
 
-  portainer: 
-    container_name: portainer
-    image: portainer/portainer-ce
-    hostname: portainer
-    restart: always
-    networks: 
-      - web
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.portainer.service=portainer"
-      - "traefik.http.routers.portainer.rule=Host(`${TRAEFIK_PORTAINER_DOMAIN}`)"
-      - "traefik.http.routers.portainer.entrypoints=websecure"
-      - "traefik.http.routers.portainer.tls.certresolver=myresolver"    
-      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./portainer_data:/data"
+  # portainer: 
+  #   container_name: portainer
+  #   image: portainer/portainer-ce
+  #   hostname: portainer
+  #   restart: always
+  #   networks: 
+  #     - web
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.portainer.service=portainer"
+  #     - "traefik.http.routers.portainer.rule=Host(`${TRAEFIK_PORTAINER_DOMAIN}`)"
+  #     - "traefik.http.routers.portainer.entrypoints=websecure"
+  #     - "traefik.http.routers.portainer.tls.certresolver=myresolver"    
+  #     - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+  #   volumes:
+  #     - "/var/run/docker.sock:/var/run/docker.sock"
+  #     - "./portainer_data:/data"
 
   oxid6_apache:
     build: container/apache/.
@@ -72,13 +72,22 @@ services:
       - ./data/www/:/var/www/html/:cached
     networks: 
       - web
+    ports:
+      - ${APACHE_PORT}:80
+      - ${APACHE_HTTPS_PORT}:443  
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.oxid.service=oxid"
-      - "traefik.http.routers.oxid.rule=Host(`${TRAEFIK_OXID_DOMAIN}`)"
-      - "traefik.http.routers.oxid.entrypoints=web"
-      # - "traefik.http.routers.oxid.tls.certresolver=myresolver"          
-      - "traefik.http.services.oxid.loadbalancer.server.port=80"
+      - "traefik.enable=false"
+      # HTTP
+      - "traefik.http.routers.oxidhttp.service=oxidhttp"
+      - "traefik.http.routers.oxidhttp.rule=Host(`${TRAEFIK_OXID_DOMAIN}`)"
+      - "traefik.http.routers.oxidhttp.entrypoints=web"
+      - "traefik.http.services.oxidhttp.loadbalancer.server.port=80"
+      # HTTPS
+      - "traefik.http.routers.oxidhttps.service=oxidhttps"
+      - "traefik.http.routers.oxidhttps.rule=Host(`${TRAEFIK_OXID_DOMAIN}`)"
+      - "traefik.http.routers.oxidhttps.entrypoints=websecure"
+      - "traefik.http.routers.oxidhttps.tls.certresolver=myresolver"    
+      - "traefik.http.services.oxidhttps.loadbalancer.server.port=80"      
     environment:
       DOMAIN: ${TRAEFIK_OXID_DOMAIN}
       APACHE_PORT: ${APACHE_PORT}

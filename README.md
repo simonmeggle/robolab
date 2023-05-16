@@ -1,6 +1,9 @@
 # robolab
 Robotmk test lab with Portainer, Checkmk and Oxid eShop
 
+Inspired by https://github.com/proudcommerce/docker-oxid6
+
+
 ## Preparation 
 
 gCloud VM 
@@ -29,12 +32,6 @@ https://doc.traefik.io/traefik/middlewares/http/basicauth/
     echo $(htpasswd -nb traefikrmk xxxxxx) | sed -e s/\\$/\\$\\$/g
     xxxxxxx  # Insert into .env file, $TRAEFIK_AUTH
 
-
-
-## TODO
-
-- Traefik
-- 
 
 ## no Demodata
 
