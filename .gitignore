@@ -1,3 +1,6 @@
 letsencrypt
 logs
 portainer_data
+.env
+data
+container

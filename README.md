@@ -18,6 +18,17 @@ Create DNS records and point to IP:
 
 
 
+
+## Configure Traefik
+
+https://doc.traefik.io/traefik/middlewares/http/basicauth/
+
+    apt install apache2-utils
+    echo $(htpasswd -nb traefikrmk XctA4J9iXctA4J9iXctA4J9i122) | sed -e s/\\$/\\$\\$/g
+
+
+
+
 ## TODO
 
 - Traefik
