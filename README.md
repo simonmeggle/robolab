@@ -1,45 +1,40 @@
 # robolab
-Robotmk test lab with Portainer, Checkmk and Oxid eShop
 
-Inspired by https://github.com/proudcommerce/docker-oxid6
+Robolab is a Docker based playground to develop end2end tests in an isolated, predictable environment. 
 
-
-## Preparation 
-
-gCloud VM 
-SSH keypair login 
-external IP 
-install docker engine (https://docs.docker.com/engine/install/debian/)
-install docker-compose
-
-    sudo usermod -aG docker $USER
-
-Create DNS records and point to IP: 
-- traefik.robotmk.org
-- portainer.robotmk.org
-- oxid.robotmk.org
+It provides: 
+- Portainer (portainer.mydomain.tld)
+- Traefik HTTP Proxy (traefik.mydomain.tld)
+- Oxid eShop Community Edition (oxid.mydomain.tld) 
+    - https://www.oxid-esales.com/
+    - Setup by https://github.com/proudcommerce/docker-oxid6
+- Checkmk (cmk.mydomain.tld)
+- Mailhog (mailhog.mydomain.tld)
 
 
+## Prerequisites
+
+- Linux VM with an external IP
+- Subdomains for each service
+- Docker, Docker compose (https://docs.docker.com/engine/install/debian/)
+
+## Configuration
+
+`.env.example` must be renamed to `.env` and filled with individual data. 
+
+- `TRAEFIK_*_DOMAIN` is the subdomain per service
+- `TRAEFIK_AUTH` is the user/pw combination as HTTP basic auth string (https://doc.traefik.io/traefik/middlewares/http/basicauth/). Generate with
+  - `apt install apache2-utils`
+  - `echo $(htpasswd -nb traefikuser xxxxxx)`     
+  - (When the string is used in docker-compose.yml *directly*, all dollar signs in the hash need to be doubled for escaping: `| sed -e s/\\$/\\$\\$/g`)
+
+## Building 
+
+After the `.env` file is set, the Oxid container image must be built with: 
+
+    docker-compose build
 
 
-## Configure Traefik
+## Start 
 
-https://doc.traefik.io/traefik/middlewares/http/basicauth/
-
-
-    apt install apache2-utils
-    # When used in docker-compose.yml all dollar signs in the hash need to be doubled for escaping.
-    echo $(htpasswd -nb traefikrmk xxxxxx) | sed -e s/\\$/\\$\\$/g
-    xxxxxxx  # Insert into .env file, $TRAEFIK_AUTH
-
-
-## no Demodata
-
-oxid.robotmk.org/setup
-
-/data/www$ sudo chmod -R a+w var/
-
-DB name: mysql.oxid.robotmk.org
-DB name: robotoxid (egal) 
-DB user: root 
-DB pw: $OXID_MYSQL_ROOT_PASSWORD
+    docker-compose up

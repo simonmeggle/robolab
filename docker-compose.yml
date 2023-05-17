@@ -7,10 +7,7 @@ services:
     command:
       - "--log.level=DEBUG"
       - "--log.filePath=logs/debug.log"
-        #- "--log.level=ERROR"
       - "--log.filePath=logs/error.log"
-      #- "--log.level=WARN"
-      #- "--log.filePath=logs/warn.log"
       # Letsencrypt TLS·
       # https://docs.traefik.io/user-guides/docker-compose/acme-http/
       - "--api.insecure=true"
@@ -37,7 +34,6 @@ services:
     ports:
       - "80:80"                                                                                                                                                                                                                                                                                                                    
       - "443:443"
-      # - "8080:8080"
     volumes:
       - "./letsencrypt:/letsencrypt"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
@@ -74,27 +70,21 @@ services:
       - ./data/www/:/var/www/html/:cached
     networks: 
       - web
-    # ports:
-      # - ${APACHE_PORT}:80
-      # - ${APACHE_HTTPS_PORT}:443  
     labels:
-
       - "traefik.enable=true"
-      # # middleware
-      # - "traefik.http.middlewares.mw-redirect.redirectscheme.scheme=https"
-      # - "traefik.http.middlewares.mw-redirect.redirectscheme.permanent=true"
-      # # HTTP routing
-      # - "traefik.http.routers.oxidhttp.middlewares=mw-redirect"
-      # - "traefik.http.routers.oxidhttp.rule=Host(`${TRAEFIK_OXID_DOMAIN}`)"
-      # - "traefik.http.routers.oxidhttp.entrypoints=ehttp"
+      # middleware
+      - "traefik.http.middlewares.mw-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.mw-redirect.redirectscheme.permanent=true"
+      # HTTP routing
+      - "traefik.http.routers.oxidhttp.middlewares=mw-redirect"
+      - "traefik.http.routers.oxidhttp.rule=Host(`${TRAEFIK_OXID_DOMAIN}`)"
+      - "traefik.http.routers.oxidhttp.entrypoints=ehttp"
       # HTTPS routing
       - "traefik.http.routers.oxidhttps.rule=Host(`${TRAEFIK_OXID_DOMAIN}`)"
       - "traefik.http.routers.oxidhttps.entrypoints=ehttps"
       - "traefik.http.routers.oxidhttps.tls.certresolver=myresolver"    
       - "traefik.http.routers.oxidhttps.tls=true"
-      # - "traefik.http.routers.oxidhttps.service=oxidhttps"
       - "traefik.http.services.oxidhttps.loadbalancer.server.port=443" 
-      # THIS IS IMPORTANT  
       - "traefik.http.services.oxidhttps.loadbalancer.server.scheme=https"   
     environment:
       DOMAIN: ${TRAEFIK_OXID_DOMAIN}
@@ -122,6 +112,7 @@ services:
   oxid6_mailhog:
     hostname: mailhog.${DOMAIN}
     image: mailhog/mailhog:latest
+    restart: always
     networks: 
       - web
     labels:
@@ -131,10 +122,8 @@ services:
       - "traefik.http.routers.mailhog.entrypoints=ehttps"
       - "traefik.http.routers.mailhog.tls.certresolver=myresolver"    
       - "traefik.http.services.mailhog.loadbalancer.server.port=8025"
-    
 
-
-# create with: docker network create web
+# create with: "docker network create web"
 networks:
   web:
     external: true
